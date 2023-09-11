@@ -4,14 +4,22 @@ on:
   workflow_dispatch:
     inputs:
       inventory_file:
-         description: inventory_name
-         type: choice
-         options:
-          - windows
-          - linux
-      Templates:
-        description: template_name
+        description: inventory_name
         type: choice
         options:
-           - template_linux
-           - template_linux1
+          - windows
+          - linux
+
+jobs:
+  generate_template:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Select Template
+        id: select_template
+        run: echo "::set-output name=template::${{ github.event.inputs.inventory_file == 'windows' ? 'template_windows' : 'template_linux' }}"
+
+      - name: Display Template
+        run: echo "Selected template is ${{ steps.select_template.outputs.template }}"
