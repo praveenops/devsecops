@@ -5,27 +5,29 @@ on:
     inputs:
       inventory_file:
         description: inventory_name
-        type: choice
-        options:
-          - windows
-          - linux
+        type: string
+      # No need to specify template options here
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Check inventory file selection
+      - name: Set available templates
+        id: set_templates
         run: |
-          if [[ ${{ github.event.inputs.inventory_file }} == "windows" ]]; then
-            echo "Selected inventory file: windows"
-            echo "Available templates for windows:"
-            echo "template_windows"
-          elif [[ ${{ github.event.inputs.inventory_file }} == "linux" ]]; then
-            echo "Selected inventory file: linux"
-            echo "Available templates for linux:"
-            echo "template_linux"
-            echo "template_linux1"
+          if [[ "${{ github.event.inputs.inventory_file }}" == "windows" ]]; then
+            echo "::set-output name=templates::template_windows"
+          elif [[ "${{ github.event.inputs.inventory_file }}" == "linux" ]]; then
+            echo "::set-output name=templates::template_linux,template_linux1"
           else
             echo "Invalid inventory file selected."
             exit 1
           fi
+
+      - name: Display available templates
+        run: |
+          available_templates="${{ steps.set_templates.outputs.templates }}"
+          IFS=',' read -ra template_array <<< "$available_templates"
+          for template in "${template_array[@]}"; do
+            echo "Available template: $template"
+          done
