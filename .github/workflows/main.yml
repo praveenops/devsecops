@@ -3,10 +3,6 @@ name: "Mapping logic test"
 on:
   workflow_dispatch:
     inputs:
-      zabbix_serverr:
-      template_id:
-         description: "Enter the template ID Ex:10325"
-         type: string
       inventory_file:
          description: inventory_name
          type: choice
@@ -16,5 +12,6 @@ on:
       Templates:
         description: template_name
         type: choice
+        options:
            - template_linux
            - template_linux1
