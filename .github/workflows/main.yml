@@ -1,37 +1,27 @@
-on:
-  workflow_dispatch:
-    inputs:
-      inventory_file:
-         description: inventory_name
-         type: choice
-         options:
-          - windows
-          - linux
-
 jobs:
-  build:
+  step1:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        inventory_file: [windows, linux]
-
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-
-      - name: Set template based on inventory file
-        id: set-template
+      - name: Collect Inventory File
+        id: collect-inventory-file
         run: |
-          if [[ "${{ matrix.inventory_file }}" == "windows" ]]; then
-            echo "Selected Template: template_windows,template_windows1"
-            echo "::set-output name=template::template_windows,template_windows1"
+          echo "::set-output name=inventory_file::${{ github.event.inputs.inventory_file }}"
+        shell: bash
+
+  step2:
+    needs: step1
+    runs-on: ubuntu-latest
+    steps:
+      - name: Determine Available Templates
+        id: determine-templates
+        run: |
+          inventory_file="${{ needs.step1.outputs.inventory_file }}"
+          if [ "$inventory_file" == "windows" ]; then
+            templates="template_windows template_windows1"
+          elif [ "$inventory_file" == "linux" ]; then
+            templates="template_linux template_linux1"
           else
-            echo "Selected Template: template_linux,template_linux1"
-            echo "::set-output name=template::template_linux,template_linux1"
+            templates="" # Handle other cases or show an error message
           fi
-
-      - name: Use selected template
-        run: |
-          selected_template="${{ steps.set-template.outputs.template }}"
-          # Use the selected template in your workflow
-          echo "Selected template: $selected_template"
+          echo "::set-output name=available_templates::${templates}"
+        shell: bash
