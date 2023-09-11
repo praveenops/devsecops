@@ -11,15 +11,21 @@ on:
           - linux
 
 jobs:
-  generate_template:
+  build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-
-      - name: Select Template
-        id: select_template
-        run: echo "::set-output name=template::${{ github.event.inputs.inventory_file == 'windows' ? 'template_windows' : 'template_linux' }}"
-
-      - name: Display Template
-        run: echo "Selected template is ${{ steps.select_template.outputs.template }}"
+      - name: Check inventory file selection
+        run: |
+          if [[ ${{ github.event.inputs.inventory_file }} == "windows" ]]; then
+            echo "Selected inventory file: windows"
+            echo "Available templates for windows:"
+            echo "template_windows"
+          elif [[ ${{ github.event.inputs.inventory_file }} == "linux" ]]; then
+            echo "Selected inventory file: linux"
+            echo "Available templates for linux:"
+            echo "template_linux"
+            echo "template_linux1"
+          else
+            echo "Invalid inventory file selected."
+            exit 1
+          fi
