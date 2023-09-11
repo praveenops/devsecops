@@ -1,15 +1,16 @@
 name: CI
 
-
 on:
   workflow_dispatch:
     inputs:
       environment:
-        type: environment
-        description: Select the environmen
+        type: string
+        description: Select the environment
+        default: production
         options:
-          - preprod
           - production
+          - staging
+          - development
       boolean:
         type: boolean
         description: True or False
@@ -17,18 +18,6 @@ on:
         type: choice
         description: Make a choice
         options:
-        - foo
-        - bar
-        - baz
-jobs:
-  build:
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v2
-
-      - name: greet
-        run: | 
-          echo "environment is ${{ github.event.inputs.environment }} / ${{ inputs.environment }}"
-          echo "boolean is ${{ github.event.inputs.boolean }}" / ${{ inputs.boolean }} 
-          echo "choice is ${{ github.event.inputs.choice }}" / ${{ inputs.choice }}
+          - foo
+          - bar
+          - baz
