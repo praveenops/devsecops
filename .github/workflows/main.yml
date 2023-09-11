@@ -17,6 +17,21 @@ on:
         type: choice
         description: Make a choice
         options:
-          - foo
           - bar
-          - baz
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Conditional Step
+        run: |
+          # Use a conditional statement to set the options for the 'choice' input
+          if [[ "${{ github.event.inputs.environment }}" == "production" ]]; then
+            echo "Selected environment is production, so options for 'choice' are 'bar'"
+          else
+            echo "Selected environment is not production, so options for 'choice' are 'bar', 'foo', 'baz'"
+          fi
