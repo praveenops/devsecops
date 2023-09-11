@@ -1,4 +1,4 @@
-name: "Collect Template and TemplateID"
+name: "Mapping logic test"
 
 on:
   workflow_dispatch:
@@ -8,11 +8,13 @@ on:
          description: "Enter the template ID Ex:10325"
          type: string
       inventory_file:
-         description:
+         description: inventory_name
          type: choice
          options:
           - windows
           - linux
       Templates:
-        - template_linux
-        - template_linux1
+        description: template_name
+        type: choice
+           - template_linux
+           - template_linux1
