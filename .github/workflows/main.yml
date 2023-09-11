@@ -7,44 +7,31 @@ on:
          options:
           - windows
           - linux
-      Templates:
-        description: template_name
-        type: choice
-        options:
-           - template_linux
-           - template_linux1
-           - template_windows
-           - template_windows1
 
 jobs:
   build:
     runs-on: ubuntu-latest
-    steps:
-      - name: Check inventory and template selection
-        id: check-selection
-        run: |
-          if [[ ${{ github.event.inputs.inventory_file }} == "windows" ]]; then
-            allowed_templates="template_windows,template_windows1"
-          else
-            allowed_templates="template_linux,template_linux1"
-          fi
-          echo "::set-output name=allowed_templates::${allowed_templates}"
-        shell: bash
+    strategy:
+      matrix:
+        inventory_file: [windows, linux]
 
-      - name: Select template
-        id: select-template
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set template based on inventory file
+        id: set-template
         run: |
-          allowed_templates="${{ steps.check-selection.outputs.allowed_templates }}"
-          IFS=',' read -ra templates <<< "$allowed_templates"
-          for template in "${templates[@]}"; do
-            echo "::add-mask::$template"  # Optionally mask the template selection for security
-            echo "::set-output name=selected_template::$template"
-          done
-        shell: bash
+          if [[ "${{ matrix.inventory_file }}" == "windows" ]]; then
+            echo "Selected Template: template_windows,template_windows1"
+            echo "::set-output name=template::template_windows,template_windows1"
+          else
+            echo "Selected Template: template_linux,template_linux1"
+            echo "::set-output name=template::template_linux,template_linux1"
+          fi
 
       - name: Use selected template
         run: |
-          selected_template="${{ steps.select-template.outputs.selected_template }}"
+          selected_template="${{ steps.set-template.outputs.template }}"
           # Use the selected template in your workflow
           echo "Selected template: $selected_template"
-        shell: bash
