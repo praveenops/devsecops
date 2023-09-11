@@ -4,16 +4,23 @@ on:
   workflow_dispatch:
     inputs:
       inventory_file:
-         description: inventory_name
-         type: choice
-         options:
+        description: inventory_name
+        type: choice
+        options:
           - windows
           - linux
-      Templates:
+      windows_template:
         description: template_name
         type: choice
         options:
-           - template_linux
-           - template_linux1
-           - template_windows
-           - template_windows1
+          - template_windows
+          - template_windows1
+
+jobs:
+  mapping_logic:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Display selected inventory and template
+        run: |
+          echo "Selected Inventory: ${{ github.event.inputs.inventory_file }}"
+          echo "Selected Template: ${{ github.event.inputs.windows_template }}"
