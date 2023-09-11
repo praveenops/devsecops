@@ -1,33 +1,50 @@
-name: "Mapping logic test"
-
 on:
   workflow_dispatch:
     inputs:
       inventory_file:
-        description: inventory_name
-        type: string
-      # No need to specify template options here
+         description: inventory_name
+         type: choice
+         options:
+          - windows
+          - linux
+      Templates:
+        description: template_name
+        type: choice
+        options:
+           - template_linux
+           - template_linux1
+           - template_windows
+           - template_windows1
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Set available templates
-        id: set_templates
+      - name: Check inventory and template selection
+        id: check-selection
         run: |
-          if [[ "${{ github.event.inputs.inventory_file }}" == "windows" ]]; then
-            echo "::set-output name=templates::template_windows"
-          elif [[ "${{ github.event.inputs.inventory_file }}" == "linux" ]]; then
-            echo "::set-output name=templates::template_linux,template_linux1"
+          if [[ ${{ github.event.inputs.inventory_file }} == "windows" ]]; then
+            allowed_templates="template_windows,template_windows1"
           else
-            echo "Invalid inventory file selected."
-            exit 1
+            allowed_templates="template_linux,template_linux1"
           fi
+          echo "::set-output name=allowed_templates::${allowed_templates}"
+        shell: bash
 
-      - name: Display available templates
+      - name: Select template
+        id: select-template
         run: |
-          available_templates="${{ steps.set_templates.outputs.templates }}"
-          IFS=',' read -ra template_array <<< "$available_templates"
-          for template in "${template_array[@]}"; do
-            echo "Available template: $template"
+          allowed_templates="${{ steps.check-selection.outputs.allowed_templates }}"
+          IFS=',' read -ra templates <<< "$allowed_templates"
+          for template in "${templates[@]}"; do
+            echo "::add-mask::$template"  # Optionally mask the template selection for security
+            echo "::set-output name=selected_template::$template"
           done
+        shell: bash
+
+      - name: Use selected template
+        run: |
+          selected_template="${{ steps.select-template.outputs.selected_template }}"
+          # Use the selected template in your workflow
+          echo "Selected template: $selected_template"
+        shell: bash
