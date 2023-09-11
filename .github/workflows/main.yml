@@ -1,26 +1,30 @@
-name: "Mapping logic test"
+name: CI
 
 on:
   workflow_dispatch:
     inputs:
-      inventory_file:
-        description: inventory_name
+      environment:
+        type: environment
+        description: Select the environment
+      boolean:
+        type: boolean
+        description: True or False
+      choice:
         type: choice
+        description: Make a choice
         options:
-          - windows
-          - linux
-      windows_template:
-        description: template_name
-        type: choice
-        options:
-          - template_windows
-          - template_windows1
-
+        - foo
+        - bar
+        - baz
 jobs:
-  mapping_logic:
+  build:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Display selected inventory and template
-        run: |
-          echo "Selected Inventory: ${{ github.event.inputs.inventory_file }}"
-          echo "Selected Template: ${{ github.event.inputs.windows_template }}"
+      - uses: actions/checkout@v2
+
+      - name: greet
+        run: | 
+          echo "environment is ${{ github.event.inputs.environment }} / ${{ inputs.environment }}"
+          echo "boolean is ${{ github.event.inputs.boolean }}" / ${{ inputs.boolean }} 
+          echo "choice is ${{ github.event.inputs.choice }}" / ${{ inputs.choice }}
